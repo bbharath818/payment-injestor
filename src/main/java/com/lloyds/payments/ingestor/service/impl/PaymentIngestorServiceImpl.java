@@ -58,8 +58,8 @@ public class PaymentIngestorServiceImpl implements PaymentService {
                     .debitAccountId(debit.getAccountId())
                     .creditAccountId(credit.getAccountId())
                     .amount(paymentRequest.getAmount())
-                    .currency(paymentRequest.getCurrency())
-                    .createdTime(LocalDateTime.now())
+                    .currency(String.valueOf(paymentRequest.getCurrency()))
+                    .timestamp(LocalDateTime.now().toInstant(java.time.ZoneOffset.UTC))
                     .build();
             paymentIngestorProducer.createPayment(event);
         }

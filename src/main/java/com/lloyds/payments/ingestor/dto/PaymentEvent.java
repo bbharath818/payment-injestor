@@ -1,13 +1,12 @@
 package com.lloyds.payments.ingestor.dto;
 
-import com.lloyds.payments.ingestor.util.Currency;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -23,9 +22,9 @@ public class PaymentEvent {
 
     private BigDecimal amount;
 
-    private Currency currency;
+    private String currency;
 
     private String reference;
 
-    private LocalDateTime createdTime;
+    private Instant timestamp;
 }
