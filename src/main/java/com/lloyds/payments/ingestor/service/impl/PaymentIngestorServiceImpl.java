@@ -43,6 +43,7 @@ public class PaymentIngestorServiceImpl implements PaymentService {
             throw new PaymentIngestorException("Account is suspended", "ORD_422", 422);
         }else{
             String paymentId = UUID.randomUUID().toString();
+            paymentRequest.setPaymentId(paymentId);
 //            Map<String, Object> event = Map.of(
 //                    "paymentId", paymentId,
 //                    "debitAccountId", debit.getAccountId(),

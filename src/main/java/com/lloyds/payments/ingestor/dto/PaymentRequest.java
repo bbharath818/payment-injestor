@@ -15,7 +15,7 @@ import java.time.Instant;
 @Data
 public class PaymentRequest {
 
-    @NotNull(message = "Payment ID must not be blank")
+//    @NotNull(message = "Payment ID must not be blank")
     private String paymentId;
 
     @NotBlank(message = "Debit account ID must not be blank")
