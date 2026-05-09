@@ -1,4 +1,4 @@
-package com.lloyds.payments_ingestor;
+package com.lloyds.payments.ingestor;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
