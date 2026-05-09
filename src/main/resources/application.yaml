@@ -1,0 +1,109 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: payments-ingestor
+  management:
+    endpoints:
+      web:
+        exposure:
+          include: "*"   # expose all actuator endpoints
+        base-path: /actuator
+
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:payment_ingestor;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    username: sa
+    password: sa
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    generate-ddl: true
+    database-platform: org.hibernate.dialect.H2Dialect
+    show-sql: true
+
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+  kafka:
+    bootstrap-servers: localhost:9092
+
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      # 🔹 Durability: ensures message is written to all replicas
+      acks: all
+      # 🔹 Batch messages to improve throughput
+      linger-ms: 10
+
+      # 🔹 Batch size (in bytes)
+      batch-size: 65536   # 64 KB
+
+      # 🔹 Compress messages to reduce network usage
+      compression-type: snappy
+
+      # 🔹 Retry on transient failures
+      retries: 5
+
+      # 🔹 Timeout for broker response
+      request-timeout-ms: 30000
+
+      # 🔹 Delivery timeout (total time for retries)
+      delivery-timeout-ms: 120000
+
+      properties:
+        enable.idempotence: true
+
+    consumer:
+      group-id: payment-processor-group
+
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+
+      # 🔹 Read from beginning if no offset exists (safe for restart)
+      auto-offset-reset: earliest
+
+      # 🔹 Disable auto commit for reliability
+      enable-auto-commit: false
+
+      # 🔹 Max records per poll (batch size)
+      max-poll-records: 500
+
+      # 🔹 Max time between polls before rebalance
+      max-poll-interval-ms: 300000
+
+      properties:
+        # 🔹 Trust package for JSON deserialization
+        spring.json.trusted.packages: "*"
+
+      listener:
+        # 🔹 Parallel consumers (match Kafka partitions)
+        concurrency: 6
+
+        # 🔹 Commit offsets after batch processing
+        ack-mode: BATCH
+
+        # 🔹 Improve throughput by consuming in batches
+        type: batch
+#        listener:
+#          ack-mode: manual
+#          concurrency: 3
+
+payment-ingrestor:
+  kafka:
+     producer:
+      topics:
+        payment-submitted: payments.submitted
+
+logging:
+  level:
+    root: INFO
+    org.springframework.kafka: DEBUG
+    org.springframework.kafka.retrytopic: DEBUG
+    org.springframework.kafka.listener: ERROR
+    org.apache.kafka.clients.consumer: ERROR
+    org.apache.kafka.clients.producer: INFO
